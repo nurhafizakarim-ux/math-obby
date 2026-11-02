@@ -1,0 +1,6 @@
+{
+  "name": "Math Obby: Ultimate Math Challenge",
+  "description": "Cabaran Obby Matematik 3D Roblox-style interaktif bagi topik Nisbah, Kadar dan Kadaran Tingkatan 1.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
