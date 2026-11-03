@@ -558,16 +558,25 @@ export default function App() {
         />
       )}
 
-      {/* PAUSE MENU */}
-      {screen === 'PAUSED' && (
-        <PauseMenu
-          onResume={() => setScreen('PLAYING')}
-          onRestart={startNewGame}
-          onMainMenu={() => setScreen('MENU')}
-          isMuted={isMuted}
-          onToggleMute={handleToggleMute}
-        />
-      )}
+
+{/* PAUSE MENU */}
+{screen === 'PAUSED' && (
+  <PauseMenu
+    onResume={() => setScreen('PLAYING')}
+    onRestart={startNewGame}
+    onMainMenu={() => setScreen('MENU')}
+    onExit={() => setScreen('GAMEOVER')}
+    isMuted={isMuted}
+    onToggleMute={handleToggleMute}
+    score={score}
+    elapsedTime={raceTime}
+    currentStation={lastStationName}
+    questionsAnswered={correctCount + wrongCount + timeoutCount}
+    correctAnswers={correctCount}
+    incorrectAnswers={wrongCount + timeoutCount}
+  />
+)}
+
 
       {/* VICTORY RESULTS */}
       {screen === 'VICTORY' && (
