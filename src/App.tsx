@@ -150,118 +150,144 @@ export default function App() {
     setIsMuted(muted);
   }, []);
 
-  // Central Failure Handling (1 life deducted per failure event, restarting current station)
-  const handleFailure = useCallback(
-    (
-      reason: 'WRONG' | 'TIMEOUT' | 'HAZARD' | 'FALL',
-      extra?: { hazardType?: string; station?: string; optionIndex?: number }
-    ) => {
-      if (isFailureLockedRef.current || screen !== 'PLAYING') return;
-      isFailureLockedRef.current = true;
+ // Central Failure Handling
+// Nyawa hanya berkurang apabila jawapan matematik salah
+const handleFailure = useCallback(
+  (
+    reason: 'WRONG' | 'TIMEOUT' | 'HAZARD' | 'FALL',
+    extra?: { hazardType?: string; station?: string; optionIndex?: number }
+  ) => {
+    if (isFailureLockedRef.current || screen !== 'PLAYING') return;
+    isFailureLockedRef.current = true;
 
-      // Deduct 10 points
-      setScore(s => Math.max(0, s - 10));
+    const isIncorrectAnswer = reason === 'WRONG';
 
-      if (reason === 'WRONG') {
-        // Hanya menambah bilangan soalan yang salah (bukan halangan fizikal!)
-        setWrongCount(w => w + 1);
-      } else if (reason === 'TIMEOUT') {
-        setTimeoutCount(c => c + 1);
+    // Tolak 10 mata untuk semua kegagalan
+    setScore(s => Math.max(0, s - 10));
+
+    if (isIncorrectAnswer) {
+      // Jawapan salah: tolak 1 nyawa
+      setLives(prev => Math.max(0, prev - 1));
+      setWrongCount(w => w + 1);
+    } else if (reason === 'TIMEOUT') {
+      // Masa tamat: nyawa kekal
+      setTimeoutCount(c => c + 1);
+    } else {
+      // Terkena halangan atau jatuh: nyawa kekal
+      setObstacleFails(f => f + 1);
+    }
+
+    // Tentukan station semasa
+    let spCode: 'SP 4.4.1' | 'SP 4.4.2' | 'SP 4.4.3' | 'SP 4.4.4' = 'SP 4.4.1';
+    let spStartIdx = 0;
+    let spTitle = 'Pusingan 1 (Soalan 1)';
+
+    if (extra?.station === 'SP 4.4.4' || currentQIndex >= 12) {
+      spCode = 'SP 4.4.4';
+      spStartIdx = 12;
+      spTitle = 'Pusingan 4 (Soalan 13)';
+    } else if (extra?.station === 'SP 4.4.3' || currentQIndex >= 8) {
+      spCode = 'SP 4.4.3';
+      spStartIdx = 8;
+      spTitle = 'Pusingan 3 (Soalan 9)';
+    } else if (extra?.station === 'SP 4.4.2' || currentQIndex >= 4) {
+      spCode = 'SP 4.4.2';
+      spStartIdx = 4;
+      spTitle = 'Pusingan 2 (Soalan 5)';
+    }
+
+    const respawnPoint = SP_START_COORDINATES[spCode];
+    const activeQ = questions[currentQIndex] || questions[spStartIdx];
+
+    // Sound effects
+    if (reason === 'HAZARD') {
+      if (extra?.hazardType === 'FIREBALL') soundManager.playFireballHit();
+      else if (extra?.hazardType === 'LASER') soundManager.playLaserZap();
+      else soundManager.playLifeLost();
+    } else if (reason === 'WRONG') {
+      setIsShocking(true);
+      soundManager.playShock();
+      setTimeout(() => setIsShocking(false), 1200);
+    } else {
+      soundManager.playLifeLost();
+    }
+
+    let reasonMsg = '';
+
+    if (reason === 'WRONG') {
+      reasonMsg = '❌ Jawapan tidak tepat! Nyawa -1.';
+    } else if (reason === 'TIMEOUT') {
+      reasonMsg = '⏰ Masa telah tamat!';
+    } else if (reason === 'FALL') {
+      reasonMsg = '⚠️ Terjatuh dari halangan!';
+    } else if (reason === 'HAZARD') {
+      if (extra?.hazardType === 'FIREBALL') {
+        reasonMsg = '☄️ Terkena bola api!';
+      } else if (extra?.hazardType === 'LASER') {
+        reasonMsg = '⚡ Terkena pancaran laser!';
       } else {
-        // 'FALL' atau 'HAZARD' - gagal halangan, tidak dimasukkan dalam soalan salah
-        setObstacleFails(f => f + 1);
+        reasonMsg = '🧱 Terkena halangan!';
       }
+    }
 
-      // Determine current station
-      let spCode: 'SP 4.4.1' | 'SP 4.4.2' | 'SP 4.4.3' | 'SP 4.4.4' = 'SP 4.4.1';
-      let spStartIdx = 0;
-      let pusinganNum = 1;
-      let spTitle = 'Pusingan 1 (Soalan 1)';
+    if (activeQ) {
+      setFeedback({
+        type: reason === 'TIMEOUT' ? 'TIMEOUT' : 'WRONG',
+        question: activeQ,
+        selectedOption:
+          extra?.optionIndex !== undefined
+            ? ['A', 'B', 'C'][extra.optionIndex]
+            : undefined,
+        pointsChange: -10,
+        message: isIncorrectAnswer
+          ? `${reasonMsg} (-10 mata). Cuba jawab soalan yang sama semula.`
+          : `${reasonMsg} (-10 mata). Kembali ke checkpoint ${spTitle}.`,
+        revealCorrectAnswer: isIncorrectAnswer,
+        timestamp: Date.now()
+      });
+    }
 
-      if (extra?.station === 'SP 4.4.4' || currentQIndex >= 12) {
-        spCode = 'SP 4.4.4';
-        spStartIdx = 12;
-        pusinganNum = 4;
-        spTitle = 'Pusingan 4 (Soalan 13)';
-      } else if (extra?.station === 'SP 4.4.3' || currentQIndex >= 8) {
-        spCode = 'SP 4.4.3';
-        spStartIdx = 8;
-        pusinganNum = 3;
-        spTitle = 'Pusingan 3 (Soalan 9)';
-      } else if (extra?.station === 'SP 4.4.2' || currentQIndex >= 4) {
-        spCode = 'SP 4.4.2';
-        spStartIdx = 4;
-        pusinganNum = 2;
-        spTitle = 'Pusingan 2 (Soalan 5)';
-      }
+    const feedbackDuration = isIncorrectAnswer ? 2500 : 1800;
 
-      const respawnPoint = SP_START_COORDINATES[spCode];
-      const activeQ = questions[currentQIndex] || questions[spStartIdx];
-
-      // Sound effects with Infinite Lives (no Game Over)
-      if (reason === 'HAZARD') {
-        if (extra?.hazardType === 'FIREBALL') soundManager.playFireballHit();
-        else if (extra?.hazardType === 'LASER') soundManager.playLaserZap();
-        else soundManager.playLifeLost();
-      } else if (reason === 'WRONG') {
-        setIsShocking(true);
-        soundManager.playShock();
-        setTimeout(() => setIsShocking(false), 1200);
-      } else {
-        soundManager.playLifeLost();
-      }
-
-      const isIncorrectAnswer = reason === 'WRONG';
-
-      let reasonMsg = '';
-      if (reason === 'WRONG') {
-        reasonMsg = activeQ?.spCode === 'SP 4.4.4'
-          ? '❌ Jawapan Tidak Tepat (Incorrect Answer)!'
-          : '⚡ Renjatan Elektrik! Jawapan tidak tepat.';
-      } else if (reason === 'TIMEOUT') {
-        reasonMsg = '⏰ Masa 25 saat telah tamat!';
-      } else if (reason === 'FALL') {
-        reasonMsg = currentQIndex >= 12 ? '🔥 Terjatuh ke dalam lahar panas!' : '⚠️ Terjatuh dari halangan!';
-      } else if (reason === 'HAZARD') {
-        if (extra?.hazardType === 'FIREBALL') reasonMsg = '☄️ Terkena bola api membara!';
-        else if (extra?.hazardType === 'LASER') reasonMsg = '⚡ Terkena pancaran laser berputar!';
-        else reasonMsg = '🧱 Terhempap blok siling!';
-      }
-
-      if (activeQ) {
-        setFeedback({
-          type: reason === 'TIMEOUT' ? 'TIMEOUT' : 'WRONG',
-          question: activeQ,
-          selectedOption: extra?.optionIndex !== undefined ? ['A', 'B', 'C'][extra.optionIndex] : undefined,
-          pointsChange: -10,
-          message: `♾️ [Nyawa Infiniti] ${reasonMsg} (-10 Mata). Dihantar semula ke titik permulaan ${spTitle}.`,
-          revealCorrectAnswer: isIncorrectAnswer, // ONLY TRUE on submitted incorrect answer!
-          timestamp: Date.now()
-        });
-      }
-
-      const feedbackDuration = isIncorrectAnswer ? 3500 : 2000;
-      const teleportDelay = isIncorrectAnswer ? 1200 : 200;
-
-      // Teleport player back to current station start
+    // Halangan/jatuh/masa tamat: respawn di station semasa.
+    // Jawapan salah: kekal pada soalan yang sama.
+    if (!isIncorrectAnswer) {
       setTimeout(() => {
-        setTeleportTarget(new THREE.Vector3(respawnPoint.x, respawnPoint.y, respawnPoint.z));
+        setTeleportTarget(
+          new THREE.Vector3(
+            respawnPoint.x,
+            respawnPoint.y,
+            respawnPoint.z
+          )
+        );
         setTimeout(() => setTeleportTarget(null), 150);
-      }, teleportDelay);
+      }, 200);
+    }
 
-      setTimeout(() => {
-        setFeedback(null);
-        setWaitingForSpIsland(null);
-        setStation4BridgeUnlocked(false);
-        setCurrentQIndex(spStartIdx);
+    setTimeout(() => {
+      setFeedback(null);
+      setWaitingForSpIsland(null);
+      setStation4BridgeUnlocked(false);
+
+      if (isIncorrectAnswer && lives <= 1) {
+        // Nyawa habis: Game Over
+        setLives(0);
+        setScreen('GAMEOVER');
+      } else {
+        // Salah jawab: ulang soalan yang sama.
+        // Kegagalan fizikal: kembali ke permulaan station.
+        if (!isIncorrectAnswer) {
+          setCurrentQIndex(spStartIdx);
+        }
+
         setQuestionTimer(25.0);
         lastWarnSecRef.current = -1;
         isFailureLockedRef.current = false;
-      }, feedbackDuration);
-    },
-    [currentQIndex, questions, screen]
-  );
-
+      }
+    }, feedbackDuration);
+  },
+  [currentQIndex, questions, screen, lives]
+);
   const handleHazardCollision = useCallback(
     (hazardType: string, station: string) => {
       handleFailure('HAZARD', { hazardType, station });
@@ -484,8 +510,8 @@ export default function App() {
     wrongCount,
     obstacleFails,
     timeoutCount,
-    livesRemaining: '∞',
-    livesLost: 0,
+    livesRemaining: String(lives),
+    livesLost: 5 - lives,
     stationsCompleted: stationsCompletedCount,
     lastStationReached: lastStationName,
     achievementRank: getAchievementRank(wrongCount, obstacleFails, screen === 'VICTORY'),
