@@ -150,7 +150,8 @@ export default function App() {
     setIsMuted(muted);
   }, []);
 
- // Central Failure Handling
+ 
+// Central Failure Handling
 // Nyawa hanya berkurang apabila jawapan matematik salah
 const handleFailure = useCallback(
   (
@@ -162,18 +163,17 @@ const handleFailure = useCallback(
 
     const isIncorrectAnswer = reason === 'WRONG';
 
-    // Tolak 10 mata untuk semua kegagalan
-    setScore(s => Math.max(0, s - 10));
+    // Jawapan salah: -20 mata
+    // Kegagalan lain: kekalkan -10 mata
+    const pointsDeducted = isIncorrectAnswer ? 20 : 10;
+    setScore(s => Math.max(0, s - pointsDeducted));
 
     if (isIncorrectAnswer) {
-      // Jawapan salah: tolak 1 nyawa
       setLives(prev => Math.max(0, prev - 1));
       setWrongCount(w => w + 1);
     } else if (reason === 'TIMEOUT') {
-      // Masa tamat: nyawa kekal
       setTimeoutCount(c => c + 1);
     } else {
-      // Terkena halangan atau jatuh: nyawa kekal
       setObstacleFails(f => f + 1);
     }
 
@@ -238,9 +238,9 @@ const handleFailure = useCallback(
           extra?.optionIndex !== undefined
             ? ['A', 'B', 'C'][extra.optionIndex]
             : undefined,
-        pointsChange: -10,
+        pointsChange: -pointsDeducted,
         message: isIncorrectAnswer
-          ? `${reasonMsg} (-10 mata). Cuba jawab soalan yang sama semula.`
+          ? `${reasonMsg} (-20 mata). Teruskan ke soalan seterusnya.`
           : `${reasonMsg} (-10 mata). Kembali ke checkpoint ${spTitle}.`,
         revealCorrectAnswer: isIncorrectAnswer,
         timestamp: Date.now()
@@ -249,49 +249,60 @@ const handleFailure = useCallback(
 
     const feedbackDuration = isIncorrectAnswer ? 2500 : 1800;
 
-    // Semua kegagalan kembali ke checkpoint station semasa.
-    // Soalan yang sedang dijawab dikekalkan.
-    setTimeout(() => {
-       setTeleportTarget(
-         new THREE.Vector3(
+    // Teleport hanya untuk TIMEOUT, HAZARD dan FALL
+    // Jawapan salah tidak menyebabkan teleport
+    if (!isIncorrectAnswer) {
+      setTimeout(() => {
+        setTeleportTarget(
+          new THREE.Vector3(
             respawnPoint.x,
             respawnPoint.y,
             respawnPoint.z
-         )
-       );
-       setTimeout(() => setTeleportTarget(null), 150);
-     }, 200);
-    
+          )
+        );
+        setTimeout(() => setTeleportTarget(null), 150);
+      }, 200);
+    }
+
     setTimeout(() => {
       setFeedback(null);
-      setWaitingForSpIsland(null);
-      setStation4BridgeUnlocked(false);
 
-      if (isIncorrectAnswer && lives <= 1) {
+      if (isIncorrectAnswer) {
         // Nyawa habis: Game Over
-        setLives(0);
-        setScreen('GAMEOVER');
-      } else {
-        // Salah jawab: ulang soalan yang sama.
-        // Kegagalan fizikal: kembali ke permulaan station.
-        if (!isIncorrectAnswer) {
-          setCurrentQIndex(spStartIdx);
+        if (lives <= 1) {
+          setLives(0);
+          setScreen('GAMEOVER');
+          return;
         }
 
-        setQuestionTimer(25.0);
-        lastWarnSecRef.current = -1;
-        isFailureLockedRef.current = false;
+        // Jawapan salah: terus ke soalan seterusnya
+        // Tidak restart station atau checkpoint
+        setCurrentQIndex(prev => prev + 1);
+
+      } else {
+        // Kekalkan sistem asal untuk kegagalan fizikal
+        setWaitingForSpIsland(null);
+        setStation4BridgeUnlocked(false);
+        setCurrentQIndex(spStartIdx);
       }
+
+      // Reset countdown soalan sahaja
+      // Race timer tidak direset
+      setQuestionTimer(25.0);
+      lastWarnSecRef.current = -1;
+      isFailureLockedRef.current = false;
+
     }, feedbackDuration);
   },
   [currentQIndex, questions, screen, lives]
 );
-  const handleHazardCollision = useCallback(
-    (hazardType: string, station: string) => {
-      handleFailure('HAZARD', { hazardType, station });
-    },
-    [handleFailure]
-  );
+
+const handleHazardCollision = useCallback(
+  (hazardType: string, station: string) => {
+    handleFailure('HAZARD', { hazardType, station });
+  },
+  [handleFailure]
+);
 
   // Question 25-second countdown & Race timer
   useEffect(() => {
