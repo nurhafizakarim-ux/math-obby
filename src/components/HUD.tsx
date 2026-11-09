@@ -112,15 +112,21 @@ export const HUD: React.FC<HUDProps> = ({
           </div>
         </div>
 
+         
           {/* Right: Controls */}
           <div className="flex items-center gap-1.5">
-          </button>
+            <button
               onClick={onToggleMute}
               className="p-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-200 transition-all shadow-md"
               title={isMuted ? 'Buka Bunyi' : 'Senyapkan'}
             >
-              {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-400" />}
+              {isMuted ? (
+                <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+              ) : (
+                <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+              )}
             </button>
+
             <button
               onClick={onPause}
               className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-200 transition-all shadow-md font-semibold text-[11px]"
@@ -130,6 +136,7 @@ export const HUD: React.FC<HUDProps> = ({
             </button>
           </div>
         </div>
+
 
         {/* 2. SP TRANSITION BANNER OR COMPACT QUESTION DOCK */}
         {!raceStarted ? (
