@@ -93,28 +93,22 @@ export const HUD: React.FC<HUDProps> = ({
 
           {/* Center: Lives, Race Time & Score */}
           <div className="flex items-center gap-2">
-            {/* Lives Meter */}
-            <div className="flex items-center gap-1.5 bg-slate-900/90 border border-rose-500/60 px-2.5 py-1 rounded-xl shadow-md">
-                <Heart className="w-4 h-4 text-rose-500 fill-rose-500 drop-shadow-[0_0_6px_rgba(244,63,94,0.7)]" />
-                <span className="font-extrabold text-xs text-rose-300 tracking-wide font-mono-num flex items-center gap-1">
-                  <span className="text-sm leading-none font-black">{lives}/5</span>
-                  <span className="text-[10px] text-rose-400 font-semibold">NYAWA</span>
-               </span>
-            </div>
+           {/* Lives Meter */}
+           <div className="flex items-center gap-2 bg-slate-900/90 border border-rose-500/50 px-3 py-2 rounded-xl shadow-md">
+             <span className="text-[10px] font-bold text-rose-300">NYAWA</span>
 
-            <div className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-700/80 px-2.5 py-1 rounded-xl shadow-md">
-              <Clock className="w-3.5 h-3.5 text-sky-400" />
-              <span className="font-mono-num font-bold text-xs text-white">
-                {formatTime(raceTime)}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 bg-slate-900/90 border border-amber-500/60 px-2.5 py-1 rounded-xl shadow-md">
-              <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              <span className="font-mono-num font-extrabold text-xs text-amber-300">
-                {score} <span className="text-[10px] text-amber-400/80 font-normal">MATA</span>
-              </span>
-            </div>
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((heart) => (
+                <Heart
+                   key={heart}
+                   className={`w-5 h-5 transition-all duration-300 ${
+                      heart <= lives
+                        ? "text-rose-500 fill-rose-500 drop-shadow-[0_0_5px_rgba(244,63,94,0.7)]"
+                        : "text-slate-600 fill-slate-800"
+                   }`}
+                 />
+               ))}
+             </div>
           </div>
 
           {/* Right: Controls */}
