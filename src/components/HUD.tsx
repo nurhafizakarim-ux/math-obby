@@ -91,26 +91,46 @@ export const HUD: React.FC<HUDProps> = ({
             )}
           </div>
 
-          {/* Center: Lives, Race Time & Score */}
-          <div className="flex items-center gap-2">
-           {/* Lives Meter */}
-           <div className="flex items-center gap-2 bg-slate-900/90 border border-rose-500/50 px-3 py-2 rounded-xl shadow-md">
-             <span className="text-[10px] font-bold text-rose-300">NYAWA</span>
+          {/* Center: Score, Race Time & Lives */}
+<div className="flex items-center gap-2">
 
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((heart) => (
-                <Heart
-                   key={heart}
-                   className={`w-5 h-5 transition-all duration-300 ${
-                      heart <= lives
-                        ? "text-rose-500 fill-rose-500 drop-shadow-[0_0_5px_rgba(244,63,94,0.7)]"
-                        : "text-slate-600 fill-slate-800"
-                   }`}
-                 />
-               ))}
-             </div>
-          </div>
-        </div>
+  {/* Score */}
+  <div className="flex items-center gap-1.5 bg-slate-900/90 border border-amber-500/50 px-3 py-2 rounded-xl shadow-md">
+    <Trophy className="w-4 h-4 text-amber-400" />
+    <span className="text-[10px] font-bold text-amber-300">MARKAH</span>
+    <span className="text-sm font-black text-white tabular-nums">
+      {score}
+    </span>
+  </div>
+
+  {/* Race Time */}
+  <div className="flex items-center gap-1.5 bg-slate-900/90 border border-sky-500/50 px-3 py-2 rounded-xl shadow-md">
+    <Clock className="w-4 h-4 text-sky-400" />
+    <span className="text-[10px] font-bold text-sky-300">MASA</span>
+    <span className="text-sm font-black text-white font-mono-num tabular-nums">
+      {formatTime(raceTime)}
+    </span>
+  </div>
+
+  {/* Lives Meter */}
+  <div className="flex items-center gap-2 bg-slate-900/90 border border-rose-500/50 px-3 py-2 rounded-xl shadow-md">
+    <span className="text-[10px] font-bold text-rose-300">NYAWA</span>
+
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((heart) => (
+        <Heart
+          key={heart}
+          className={`w-5 h-5 transition-all duration-300 ${
+            heart <= lives
+              ? "text-rose-500 fill-rose-500 drop-shadow-[0_0_5px_rgba(244,63,94,0.7)]"
+              : "text-slate-600 fill-slate-800"
+          }`}
+        />
+      ))}
+    </div>
+  </div>
+
+</div>
 
          
           {/* Right: Controls */}
