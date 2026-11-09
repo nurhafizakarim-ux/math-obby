@@ -110,10 +110,11 @@ export const HUD: React.FC<HUDProps> = ({
                ))}
              </div>
           </div>
+        </div>
 
           {/* Right: Controls */}
           <div className="flex items-center gap-1.5">
-            <button
+          </button>
               onClick={onToggleMute}
               className="p-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-200 transition-all shadow-md"
               title={isMuted ? 'Buka Bunyi' : 'Senyapkan'}
