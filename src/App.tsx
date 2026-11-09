@@ -249,21 +249,19 @@ const handleFailure = useCallback(
 
     const feedbackDuration = isIncorrectAnswer ? 2500 : 1800;
 
-    // Halangan/jatuh/masa tamat: respawn di station semasa.
-    // Jawapan salah: kekal pada soalan yang sama.
-    if (!isIncorrectAnswer) {
-      setTimeout(() => {
-        setTeleportTarget(
-          new THREE.Vector3(
+    // Semua kegagalan kembali ke checkpoint station semasa.
+    // Soalan yang sedang dijawab dikekalkan.
+    setTimeout(() => {
+       setTeleportTarget(
+         new THREE.Vector3(
             respawnPoint.x,
             respawnPoint.y,
             respawnPoint.z
-          )
-        );
-        setTimeout(() => setTeleportTarget(null), 150);
-      }, 200);
-    }
-
+         )
+       );
+       setTimeout(() => setTeleportTarget(null), 150);
+     }, 200);
+    
     setTimeout(() => {
       setFeedback(null);
       setWaitingForSpIsland(null);
