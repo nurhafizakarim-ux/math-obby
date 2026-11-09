@@ -93,13 +93,13 @@ export const HUD: React.FC<HUDProps> = ({
 
           {/* Center: Lives, Race Time & Score */}
           <div className="flex items-center gap-2">
-            {/* Infinite Lives Meter */}
+            {/* Lives Meter */}
             <div className="flex items-center gap-1.5 bg-slate-900/90 border border-rose-500/60 px-2.5 py-1 rounded-xl shadow-md">
-              <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse drop-shadow-[0_0_6px_rgba(244,63,94,0.7)]" />
-              <span className="font-extrabold text-xs text-rose-300 tracking-wide font-mono-num flex items-center gap-1">
-                <span className="text-sm leading-none font-black">∞</span>
-                <span className="text-[10px] text-rose-400 font-semibold">NYAWA</span>
-              </span>
+                <Heart className="w-4 h-4 text-rose-500 fill-rose-500 drop-shadow-[0_0_6px_rgba(244,63,94,0.7)]" />
+                <span className="font-extrabold text-xs text-rose-300 tracking-wide font-mono-num flex items-center gap-1">
+                  <span className="text-sm leading-none font-black">{lives}/5</span>
+                  <span className="text-[10px] text-rose-400 font-semibold">NYAWA</span>
+               </span>
             </div>
 
             <div className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-700/80 px-2.5 py-1 rounded-xl shadow-md">
