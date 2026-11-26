@@ -201,6 +201,33 @@ export const SP_DETAILS = {
  * Returns the exact 16 questions in strict sequential order (Soalan 1 hingga 16).
  * No random shuffling!
  */
+// Shuffle kedudukan pilihan jawapan A, B dan C
+export function shuffleQuestionOptions(question: Question): Question {
+  const shuffledOptions = question.options.map((option, index) => ({
+    option,
+    originalIndex: index
+  }));
+
+  // Fisher-Yates Shuffle
+  for (let i = shuffledOptions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [shuffledOptions[i], shuffledOptions[j]] =
+      [shuffledOptions[j], shuffledOptions[i]];
+  }
+
+  return {
+    ...question,
+    options: shuffledOptions.map(item => item.option),
+    correctIndex: shuffledOptions.findIndex(
+      item => item.originalIndex === question.correctIndex
+    )
+  };
+}
+
+// Generate soalan baharu dengan pilihan jawapan yang diacak
 export function generateSessionQuestions(): Question[] {
-  return [...EXACT_QUESTIONS];
+  return EXACT_QUESTIONS.map(question =>
+    shuffleQuestionOptions(question)
+  );
 }
