@@ -283,12 +283,13 @@ const handleFailure = useCallback(
         // Tidak restart station atau checkpoint
         setCurrentQIndex(prev => prev + 1);
 
-    } else {
-  // Shuffle jawapan bagi soalan yang sedang dimainkan
-  // Kekalkan indeks soalan asal selepas respawn
+   
+} else {
+  // Kembali ke Soalan 1 bagi stesen semasa
+  // dan acak semula pilihan jawapan
   setQuestions(prevQuestions =>
     prevQuestions.map((question, index) =>
-      index === currentQIndex
+      index === spStartIdx
         ? shuffleQuestionOptions(question)
         : question
     )
@@ -296,9 +297,7 @@ const handleFailure = useCallback(
 
   setWaitingForSpIsland(null);
   setStation4BridgeUnlocked(false);
-
-  // Jangan reset currentQIndex.
-  // Pemain akan meneruskan soalan yang sama.
+  setCurrentQIndex(spStartIdx);
 }
 
       // Reset countdown soalan sahaja
