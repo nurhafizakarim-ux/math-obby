@@ -283,20 +283,22 @@ const handleFailure = useCallback(
         // Tidak restart station atau checkpoint
         setCurrentQIndex(prev => prev + 1);
 
-      } else {
-  // Shuffle semula jawapan soalan checkpoint selepas respawn
+    } else {
+  // Shuffle jawapan bagi soalan yang sedang dimainkan
+  // Kekalkan indeks soalan asal selepas respawn
   setQuestions(prevQuestions =>
     prevQuestions.map((question, index) =>
-      index === spStartIdx
+      index === currentQIndex
         ? shuffleQuestionOptions(question)
         : question
     )
   );
 
-  // Kekalkan sistem asal checkpoint
   setWaitingForSpIsland(null);
   setStation4BridgeUnlocked(false);
-  setCurrentQIndex(spStartIdx);
+
+  // Jangan reset currentQIndex.
+  // Pemain akan meneruskan soalan yang sama.
 }
 
       // Reset countdown soalan sahaja
