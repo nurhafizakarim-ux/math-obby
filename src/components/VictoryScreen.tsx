@@ -1,6 +1,8 @@
 import React from 'react';
-import { Trophy, CheckCircle, XCircle, Clock, RotateCcw, Home, Award, Heart, Star, Sparkles, Medal } from 'lucide-react';
-import { GameStats } from '../types/game';
+import {
+  Trophy, XCircle, Clock, RotateCcw, Home,
+  Star, Sparkles, Medal, ClipboardCheck
+} from 'lucide-react';
 
 interface VictoryScreenProps {
   stats: GameStats;
@@ -68,15 +70,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
             </div>
           </div>
 
-          {/* Infinite Lives Badge */}
-          <div className="flex items-center gap-1.5 bg-slate-950/60 px-3 py-1.5 rounded-xl border border-rose-500/40 shadow-sm">
-            <Heart className="w-4 h-4 text-rose-500 fill-rose-500 drop-shadow-[0_0_6px_rgba(244,63,94,0.7)]" />
-            <span className="text-xs font-black text-rose-300 font-mono-num flex items-center gap-1">
-              <span className="text-sm font-black">∞</span>
-              <span className="text-[10px] text-rose-400 font-bold uppercase">Nyawa Infiniti</span>
-            </span>
-          </div>
-        </div>
+        
 
         {isNewHighScore && (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold mb-4 animate-pulse">
@@ -85,43 +79,59 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
           </div>
         )}
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-2.5 mb-5 text-left text-xs">
-          {/* Final Score */}
-          <div className="bg-slate-800/90 border border-slate-700 rounded-xl p-3">
-            <div className="text-[10px] font-bold text-slate-400 uppercase">Markah Akhir</div>
-            <div className="font-mono-num font-black text-2xl text-amber-300 mt-0.5">
-              {stats.score} <span className="text-xs text-amber-400/70 font-normal">Mata</span>
-            </div>
-          </div>
+        
+{/* Stats Grid */}
+<div className="grid grid-cols-2 gap-2.5 mb-5 text-left text-xs">
 
-          {/* Total Completion Time */}
-          <div className="bg-slate-800/90 border border-slate-700 rounded-xl p-3">
-            <div className="text-[10px] font-bold text-slate-400 uppercase">Masa Penamat</div>
-            <div className="font-mono-num font-black text-2xl text-sky-300 flex items-center gap-1.5 mt-0.5">
-              <Clock className="w-4 h-4 text-sky-400" />
-              <span>{formatTime(stats.totalTime)}</span>
-            </div>
-          </div>
+  {/* Markah Akhir */}
+  <div className="bg-slate-800/90 border border-slate-700 rounded-xl p-3">
+    <div className="text-[10px] font-bold text-slate-400 uppercase">
+      Markah Akhir
+    </div>
+    <div className="font-mono-num font-black text-2xl text-amber-300 mt-0.5">
+      {stats.score}
+      <span className="text-xs text-amber-400/70 font-normal"> Mata</span>
+    </div>
+  </div>
 
-          {/* Correct Answers */}
-          <div className="bg-slate-800/90 border border-emerald-500/30 rounded-xl p-3">
-            <div className="text-[10px] font-bold text-slate-400 uppercase">Jawapan Betul</div>
-            <div className="font-mono-num font-black text-xl text-emerald-400 flex items-center gap-1.5 mt-0.5">
-              <CheckCircle className="w-4 h-4 text-emerald-400" />
-              <span>{Math.min(16, stats.correctCount)} / 16</span>
-            </div>
-          </div>
+  {/* Masa Penamat */}
+  <div className="bg-slate-800/90 border border-slate-700 rounded-xl p-3">
+    <div className="text-[10px] font-bold text-slate-400 uppercase">
+      Masa Penamat
+    </div>
+    <div className="font-mono-num font-black text-2xl text-sky-300 flex items-center gap-1.5 mt-0.5">
+      <Clock className="w-4 h-4 text-sky-400" />
+      <span>{formatTime(stats.totalTime)}</span>
+    </div>
+  </div>
 
-          {/* Soalan Salah Sahaja (Tidak termasuk gagal halangan) */}
-          <div className="bg-slate-800/90 border border-rose-500/30 rounded-xl p-3">
-            <div className="text-[10px] font-bold text-slate-400 uppercase">Soalan Salah</div>
-            <div className="font-mono-num font-black text-xl text-rose-400 flex items-center gap-1.5 mt-0.5">
-              <XCircle className="w-4 h-4 text-rose-400" />
-              <span>{stats.wrongCount} <span className="text-xs text-slate-400 font-normal">soalan</span></span>
-            </div>
-          </div>
-        </div>
+  {/* Soalan Dijawab */}
+  <div className="bg-slate-800/90 border border-sky-500/30 rounded-xl p-3">
+    <div className="text-[10px] font-bold text-slate-400 uppercase">
+      Soalan Dijawab
+    </div>
+    <div className="font-mono-num font-black text-xl text-sky-400 flex items-center gap-1.5 mt-0.5">
+      <ClipboardCheck className="w-4 h-4 text-sky-400" />
+      <span>16 / 16</span>
+    </div>
+  </div>
+
+  {/* Soalan Salah */}
+  <div className="bg-slate-800/90 border border-rose-500/30 rounded-xl p-3">
+    <div className="text-[10px] font-bold text-slate-400 uppercase">
+      Soalan Salah
+    </div>
+    <div className="font-mono-num font-black text-xl text-rose-400 flex items-center gap-1.5 mt-0.5">
+      <XCircle className="w-4 h-4 text-rose-400" />
+      <span>
+        {stats.wrongCount}
+        <span className="text-xs text-slate-400 font-normal"> soalan</span>
+      </span>
+    </div>
+  </div>
+
+</div>
+
 
         {/* Best Records info */}
         <div className="bg-slate-950/60 rounded-xl p-2.5 border border-slate-800 text-xs text-slate-400 flex justify-between items-center mb-6">
