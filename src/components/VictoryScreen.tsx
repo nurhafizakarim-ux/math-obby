@@ -69,7 +69,7 @@ export const VictoryScreen: React.FC<VictoryScreenProps> = ({
               </div>
             </div>
           </div>
-
+      </div>
         
 
         {isNewHighScore && (
