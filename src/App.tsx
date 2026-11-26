@@ -13,7 +13,11 @@ import { VictoryScreen } from './components/VictoryScreen';
 import { GuideModal } from './components/GuideModal';
 import { MobileControls } from './components/MobileControls';
 import { GameOverScreen } from './components/GameOverScreen';
-import { generateSessionQuestions, SP_DETAILS } from './data/questions';
+import {
+  generateSessionQuestions,
+  shuffleQuestionOptions,
+  SP_DETAILS
+} from './data/questions';
 import { GameScreen, Question, QuestionFeedback, GameStats } from './types/game';
 import { soundManager } from './audio/soundManager';
 
@@ -280,11 +284,20 @@ const handleFailure = useCallback(
         setCurrentQIndex(prev => prev + 1);
 
       } else {
-        // Kekalkan sistem asal untuk kegagalan fizikal
-        setWaitingForSpIsland(null);
-        setStation4BridgeUnlocked(false);
-        setCurrentQIndex(spStartIdx);
-      }
+  // Shuffle semula jawapan soalan checkpoint selepas respawn
+  setQuestions(prevQuestions =>
+    prevQuestions.map((question, index) =>
+      index === spStartIdx
+        ? shuffleQuestionOptions(question)
+        : question
+    )
+  );
+
+  // Kekalkan sistem asal checkpoint
+  setWaitingForSpIsland(null);
+  setStation4BridgeUnlocked(false);
+  setCurrentQIndex(spStartIdx);
+}
 
       // Reset countdown soalan sahaja
       // Race timer tidak direset
